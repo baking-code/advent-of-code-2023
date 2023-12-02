@@ -4,9 +4,11 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var numMap = map[string]int{
@@ -28,25 +30,40 @@ func main() {
 	total := 0
 	for scanner.Scan() {
 		line := scanner.Text()
+		rounds := strings.Split(line, ";")
 		gameMatch := gameRegex.FindStringSubmatch(line)
 		gameNumber, err := strconv.ParseInt(string(gameMatch[1]), 10, 0)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		cubeMatch := cubeRegex.FindAllStringSubmatch(line, -1)
 		isValid := true
-		for _, match := range cubeMatch {
-			n, colour := match[1], match[2]
-			num, err := strconv.ParseInt(string(n), 10, 0)
-			// fmt.Println(num, colour, int64(numMap[colour]))
-			if err != nil || num > int64(numMap[colour]) {
-				isValid = false
-				break
+		var minMap = map[string]int{
+			"red":   0,
+			"green": 0,
+			"blue":  0,
+		}
+		for _, round := range rounds {
+			cubeMatch := cubeRegex.FindAllStringSubmatch(round, -1)
+			for _, match := range cubeMatch {
+				n, colour := match[1], match[2]
+				num, err := strconv.ParseInt(string(n), 10, 0)
+
+				// fmt.Println(num, colour, int64(numMap[colour]))
+				minMap[colour] = int(math.Max(float64(minMap[colour]), float64(num)))
+				if err != nil {
+					isValid = false
+					break
+				}
 			}
 		}
+		lineTotal := 1
+		for _, v := range minMap {
+			lineTotal *= v
+		}
+		fmt.Println("Game", gameNumber, "total", lineTotal, "map", minMap)
 		if isValid {
-			total += int(gameNumber)
+			total += int(lineTotal)
 		}
 	}
 	fmt.Println("game total", total)
