@@ -1,2 +1,4 @@
+github.com/baking-code/godash v0.1.0 h1:2yQbSP4l6MOdXIBkGZBVRSkfodJh8fCYFbYgnTp3LPE=
+github.com/baking-code/godash v0.1.0/go.mod h1:8DCmApPfFjm4JYStFqY53mIh79xeMzHgogJ4Ilv/dUI=
 golang.org/x/exp v0.0.0-20231127185646-65229373498e h1:Gvh4YaCaXNs6dKTlfgismwWZKyjVZXwOPfIyUaqU3No=
 golang.org/x/exp v0.0.0-20231127185646-65229373498e/go.mod h1:iRJReGqOEeBhDZGkGbynYwcHlctCvnjTYIamk7uXpHI=
