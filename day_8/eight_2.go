@@ -67,9 +67,6 @@ func main() {
 	}
 	fmt.Println(result)
 	fmt.Println(ends)
-	// fmt.Println(bigMap)
-
-	// result := "AAA"
 	count := 0
 	lowestCounts := make([]int, len(result))
 	gotEmAll := func() bool {
@@ -87,7 +84,6 @@ func main() {
 					// capture when we hit the desired destination
 					lowestCounts[i] = count
 				}
-				// fmt.Print("moving from   ", each, "    ->>> ")
 				step := string(char) // R or L
 				if step == "L" {
 					each = bigMap[each].L
@@ -96,7 +92,6 @@ func main() {
 				} else {
 					panic("ehlp")
 				}
-				// fmt.Println("to  ", each)
 				result[i] = each
 			}
 			count++
