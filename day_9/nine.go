@@ -17,7 +17,7 @@ type tuple struct {
 }
 
 func main() {
-	file, err := os.Open("./test.txt")
+	file, err := os.Open("./data.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,10 +36,10 @@ func main() {
 		stop := false
 		nextDiffs := seq
 		lasts := []int{}
-		firsts := []int{}
+		firsts := []int{seq[0]}
+		newFirsts := []int{0}
 		lastTotal := 0
-		firstTotal := 0
-		// fmt.Println("initial", seq)
+		newFirst := 0
 		for !stop {
 			newDiff := []int{}
 			for i := range nextDiffs {
@@ -52,13 +52,15 @@ func main() {
 				for _, last := range lasts {
 					lastTotal += last
 				}
-				for _, first := range firsts {
-					firstTotal += first
+				// firsts = append(firsts, 0)
+				for i := range firsts {
+					newFirst = firsts[len(firsts)-i-1] - newFirsts[i]
+					newFirsts = append(newFirsts, newFirst)
 				}
-				fmt.Println("last", seq[len(seq)-1], lastTotal)
+
 				nextTotal += seq[len(seq)-1] + lastTotal
-				fmt.Println("first", seq[len(seq)-1], firstTotal)
-				prevTotal += seq[0] + firstTotal
+				prevTotal += newFirst
+				nextDiffs = newDiff
 				stop = true
 			} else {
 				lasts = append(lasts, newDiff[len(newDiff)-1])
