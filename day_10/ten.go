@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 )
 
 type Matrix [][]string
@@ -26,7 +27,7 @@ func (m Matrix) getSymbol(c Coord) string {
 
 func main() {
 	matrix := Matrix{}
-	file, err := os.Open("./data.txt")
+	file, err := os.Open("./test.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,9 +57,90 @@ func main() {
 	loop, err := findLoop(matrix, startingPoint)
 	// answer is the largest length of loop / 2
 	fmt.Println("PT1", len(loop)/2)
+	enclosed := findArea(matrix, loop)
+	fmt.Println("PT2", enclosed)
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func findArea(m Matrix, path []Coord) int {
+	num := 0
+	size := len(m)
+	isPath := func(c Coord) bool {
+		for _, pathEl := range path {
+			if pathEl.x == c.x && pathEl.y == c.y {
+				return true
+			}
+		}
+		return false
+	}
+
+	isContained := func(c Coord) bool {
+		// extrapolate to each edge to see if we hit our path
+		// if it's got a path around it in each direction, then it's contained
+		xp := c.x
+		inPathA := false
+		inPathB := false
+		inPathC := false
+		inPathD := false
+		for {
+			xp++
+			if isPath(Coord{xp, c.y}) {
+				inPathA = true
+				break
+			} else if xp > size {
+				break
+			}
+			// fmt.Println("xp", xp)
+		}
+		xn := c.x
+		for {
+			xn--
+			if isPath(Coord{xn, c.y}) {
+				inPathB = true
+				break
+			} else if xn < 0 {
+				break
+			}
+			// fmt.Println("xn", xn)
+		}
+		yp := c.y
+		for {
+			yp++
+			if isPath(Coord{c.x, yp}) {
+				inPathC = true
+				break
+			} else if yp > size {
+				break
+			}
+			// fmt.Println("yp", yp)
+		}
+		yn := c.y
+		for {
+			yn--
+			if isPath(Coord{c.x, yn}) {
+				inPathD = true
+				break
+			} else if yn < 0 {
+				break
+			}
+			// fmt.Println("yn", yn)
+		}
+		return inPathA && inPathB && inPathC && inPathD
+	}
+	for dx := range m {
+		for dy := range m[dx] {
+			coord := Coord{x: dx, y: dy}
+			if !isPath(coord) {
+				if isContained(coord) {
+					fmt.Println(num)
+					num++
+				}
+			}
+		}
+	}
+	return num
 }
 
 func findLoop(m Matrix, startingPosition Coord) ([]Coord, error) {
@@ -153,39 +235,18 @@ func findSurrounding(m Matrix, c Coord) []Coord {
 func findStartingPositionPossibles(m Matrix, pos Coord) []Coord {
 	surrounding := []Coord{}
 
-	if pos.x > 0 && contains([]string{"|", "F", "7"}, m[pos.x-1][pos.y]) {
+	if pos.x > 0 && slices.Contains([]string{"|", "F", "7"}, m[pos.x-1][pos.y]) {
 		surrounding = append(surrounding, Coord{pos.x - 1, pos.y})
 	}
-	if pos.x < len(m)-1 && contains([]string{"|", "L", "J"}, m[pos.x+1][pos.y]) {
+	if pos.x < len(m)-1 && slices.Contains([]string{"|", "L", "J"}, m[pos.x+1][pos.y]) {
 		surrounding = append(surrounding, Coord{pos.x + 1, pos.y})
 	}
-	if pos.y > 0 && contains([]string{"-", "L", "F"}, m[pos.x][pos.y-1]) {
+	if pos.y > 0 && slices.Contains([]string{"-", "L", "F"}, m[pos.x][pos.y-1]) {
 		surrounding = append(surrounding, Coord{pos.x, pos.y - 1})
 	}
-	if pos.y < len(m[pos.x])-1 && contains([]string{"-", "J", "7"}, m[pos.x][pos.y+1]) {
+	if pos.y < len(m[pos.x])-1 && slices.Contains([]string{"-", "J", "7"}, m[pos.x][pos.y+1]) {
 		surrounding = append(surrounding, Coord{pos.x, pos.y + 1})
 	}
 
 	return surrounding
-}
-
-func contains(values []string, value string) bool {
-	for _, v := range values {
-		if v == value {
-			return true
-		}
-	}
-
-	return false
-}
-
-var direction = map[int]Coord{
-	0: {1, 0},
-	1: {1, 1},
-	2: {0, 1},
-	3: {-1, 1},
-	4: {-1, 0},
-	5: {-1, -1},
-	6: {0, -1},
-	7: {1, -1},
 }
