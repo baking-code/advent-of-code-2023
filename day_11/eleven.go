@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"os"
-	"slices"
 )
 
 type Matrix [][]string
@@ -28,7 +27,7 @@ func (m Matrix) getSymbol(c Coord) string {
 
 func main() {
 	matrix := Matrix{}
-	file, err := os.Open("./data.txt")
+	file, err := os.Open("./test.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,9 +37,8 @@ func main() {
 
 	x := 0
 	rowsInserted := 0
-	multiple := 1
-
-	// rowsWithoutGalaxies := []int{}
+	multi := 10
+	rowsWithoutGalaxies := []int{}
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -54,16 +52,38 @@ func main() {
 		}
 		matrix = append(matrix, row)
 		if !hasGalaxies {
-			for i := 0; i < multiple; i++ {
-				matrix = append(matrix, row)
-				rowsInserted++
-			}
-			// rowsWithoutGalaxies = append(rowsWithoutGalaxies, )
+			// matrix = append(matrix, row)
+			rowsWithoutGalaxies = append(rowsWithoutGalaxies, x)
+			rowsInserted++
 		}
 		x++
 	}
 	colsWithoutGalaxies := []int{}
-	for y := 0; y < len(matrix)-rowsInserted; y++ {
+	// for y := 0; y < len(matrix)-rowsInserted; y++ {
+	// 	hasGalaxies := false
+	// 	for i := 0; i < len(matrix); i++ {
+	// 		s := matrix[i][y]
+	// 		if string(s) == "#" {
+	// 			hasGalaxies = hasGalaxies || true
+	// 		}
+	// 	}
+	// 	if !hasGalaxies {
+	// 		colsWithoutGalaxies = append(colsWithoutGalaxies, y)
+	// 	}
+	// }
+
+	//marker := 0
+	// for _, v := range colsWithoutGalaxies {
+	// 	for i, row := range matrix {
+	// 		// fmt.Println("inserting item at col number", v+marker, "for row number", i)
+	// 		matrix[i] = slices.Insert(row, v+marker, ".")
+	// 	}
+	// 	fmt.Println(matrix)
+	// 	marker++
+	// }
+	fmt.Println(matrix)
+
+	for y := 0; y < len(matrix); y++ {
 		hasGalaxies := false
 		for i := 0; i < len(matrix); i++ {
 			s := matrix[i][y]
@@ -75,34 +95,7 @@ func main() {
 			colsWithoutGalaxies = append(colsWithoutGalaxies, y)
 		}
 	}
-
-	fmt.Println(matrix, colsWithoutGalaxies)
-	marker := 0
-	for _, v := range colsWithoutGalaxies {
-		for i, row := range matrix {
-			// fmt.Println("inserting item at col number", v+marker, "for row number", i)
-			for k := 0; k < multiple; i++ {
-				matrix[i] = slices.Insert(row, v+marker, ".")
-			}
-		}
-		fmt.Println(matrix)
-		marker += multiple
-	}
-	fmt.Println(matrix)
-
-	for y := 0; y < len(matrix)-rowsInserted; y++ {
-		hasGalaxies := false
-		for i := 0; i < len(matrix); i++ {
-			s := matrix[i][y]
-			if string(s) == "#" {
-				hasGalaxies = hasGalaxies || true
-			}
-		}
-		if !hasGalaxies {
-			colsWithoutGalaxies = append(colsWithoutGalaxies, y)
-		}
-	}
-	fmt.Println(matrix)
+	// fmt.Println(matrix, colsWithoutGalaxies)
 	numRows := len(matrix)
 	numCols := len(matrix[0])
 	fmt.Println("rows:", numRows, "; cols:", numCols)
@@ -117,20 +110,26 @@ func main() {
 			}
 		}
 	}
-	fmt.Println(galaxies)
+	// fmt.Println(matrix)
+	// fmt.Println(galaxies)
 
 	total := 0
+	pt2Total := 0
 	for i, v := range galaxies {
 		if i < len(galaxies) {
 			for j := i; j < len(galaxies)-1; j++ {
-				total += getShortestPath(v, galaxies[j+1])
+				total += getShortestPathPt2(v, galaxies[j+1], rowsWithoutGalaxies, colsWithoutGalaxies, 1)
+				pt2Total += getShortestPathPt2(v, galaxies[j+1], rowsWithoutGalaxies, colsWithoutGalaxies, multi)
 			}
 		} else {
-			total += getShortestPath(v, galaxies[0])
+			total += getShortestPathPt2(v, galaxies[0], rowsWithoutGalaxies, colsWithoutGalaxies, 1)
+			pt2Total += getShortestPathPt2(v, galaxies[0], rowsWithoutGalaxies, colsWithoutGalaxies, multi)
+
 		}
 	}
 
-	fmt.Println("total", total)
+	fmt.Println("total Pt1", total)    //374, 9799681
+	fmt.Println("total Pt1", pt2Total) //
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
@@ -143,4 +142,33 @@ func getShortestPath(a, b Coord) int {
 	res := int(math.Abs(float64(dx)) + math.Abs(float64(dy)))
 	// fmt.Println(a, b, res)
 	return res
+}
+func getShortestPathPt2(a, b Coord, rowsWithoutGalaxies []int, colsWithoutGalaxies []int, multiple int) int {
+	dx := b.x - a.x
+	dy := b.y - a.y
+	xx, yy := multiplier(a, b, rowsWithoutGalaxies, colsWithoutGalaxies)
+	res := int(math.Abs(float64(dx))) + (xx * multiple) + int(math.Abs(float64(dy))) + yy*multiple
+	fmt.Println(a, b, res)
+	return res
+}
+
+func multiplier(a, b Coord, listX, listY []int) (int, int) {
+	resultX := 0
+	resultY := 0
+	for _, d := range listX {
+		minX := int(math.Min(float64(a.x), float64(b.x)))
+		maxX := int(math.Max(float64(a.x), float64(b.x)))
+		if minX < d && d < int(maxX) {
+			resultX++
+		}
+	}
+	for _, d := range listY {
+		minY := int(math.Min(float64(a.y), float64(b.y)))
+		maxY := int(math.Max(float64(a.y), float64(b.y)))
+		if minY < d && d < maxY {
+			resultY++
+		}
+	}
+	fmt.Println("gaps between", a, b, "are: ", resultX, resultY)
+	return resultX, resultY
 }
