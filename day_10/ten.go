@@ -134,7 +134,6 @@ func findArea(m Matrix, path []Coord) int {
 			coord := Coord{x: dx, y: dy}
 			if !isPath(coord) {
 				if isContained(coord) {
-					fmt.Println(num)
 					num++
 				}
 			}
