@@ -27,7 +27,7 @@ func (m Matrix) getSymbol(c Coord) string {
 
 func main() {
 	matrix := Matrix{}
-	file, err := os.Open("./test.txt")
+	file, err := os.Open("./data.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func main() {
 
 	x := 0
 	rowsInserted := 0
-	multi := 10
+	copies := 1000000
 	rowsWithoutGalaxies := []int{}
 
 	for scanner.Scan() {
@@ -119,11 +119,11 @@ func main() {
 		if i < len(galaxies) {
 			for j := i; j < len(galaxies)-1; j++ {
 				total += getShortestPathPt2(v, galaxies[j+1], rowsWithoutGalaxies, colsWithoutGalaxies, 1)
-				pt2Total += getShortestPathPt2(v, galaxies[j+1], rowsWithoutGalaxies, colsWithoutGalaxies, multi)
+				pt2Total += getShortestPathPt2(v, galaxies[j+1], rowsWithoutGalaxies, colsWithoutGalaxies, copies)
 			}
 		} else {
 			total += getShortestPathPt2(v, galaxies[0], rowsWithoutGalaxies, colsWithoutGalaxies, 1)
-			pt2Total += getShortestPathPt2(v, galaxies[0], rowsWithoutGalaxies, colsWithoutGalaxies, multi)
+			pt2Total += getShortestPathPt2(v, galaxies[0], rowsWithoutGalaxies, colsWithoutGalaxies, copies)
 
 		}
 	}
@@ -147,8 +147,11 @@ func getShortestPathPt2(a, b Coord, rowsWithoutGalaxies []int, colsWithoutGalaxi
 	dx := b.x - a.x
 	dy := b.y - a.y
 	xx, yy := multiplier(a, b, rowsWithoutGalaxies, colsWithoutGalaxies)
-	res := int(math.Abs(float64(dx))) + (xx * multiple) + int(math.Abs(float64(dy))) + yy*multiple
-	fmt.Println(a, b, res)
+	absx := int(math.Abs(float64(dx)))
+	absy := int(math.Abs(float64(dy)))
+	// we define the number of copies we want, we already have the original so we -1 from the desired number
+	res := absx + (xx*multiple - 1) + absy + yy*multiple - 1
+	// fmt.Println(a, b, absx, xx*multiple, absy, yy*multiple, res)
 	return res
 }
 
@@ -169,6 +172,6 @@ func multiplier(a, b Coord, listX, listY []int) (int, int) {
 			resultY++
 		}
 	}
-	fmt.Println("gaps between", a, b, "are: ", resultX, resultY)
+	// fmt.Println("gaps between", a, b, "are: ", resultX, resultY)
 	return resultX, resultY
 }
