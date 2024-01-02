@@ -33,10 +33,6 @@ func (m Matrix) String() string {
 	return str
 }
 
-func (m Matrix) RunPartOne() int {
-	return 0
-}
-
 func (current Dir) isReverse(next Dir) bool {
 	switch next {
 	case RIGHT:
